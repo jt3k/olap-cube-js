@@ -47,3 +47,18 @@ ref для createMember
 в addDimensionMember параметры дефолные сделать {} если даже null
 тесты на кортеж добавить
 описать id у InputMember в доке
+
+как бы сделать Pivot повороты
+
+тудушки разобрать
+
+getFacts => createFacts?
+может cellTable и вовсе нету никакой
+dependency => level
+
+http://www.olapcube.com/mdxhelp/KeyConcepts.htm
+each cell is an intersection of all the dimensions of the cube
+ tuples can uniquely identify every cell in the cube
+
+ Custom Member Options может быть параметром к таблицам измерений, чтобы не прокидывать каждый раз их в функциях
+ по аналогии Cell Properties
