@@ -81,11 +81,18 @@ class Cube {
 		const removedCells = facts.map(fact => {
 			return cellTable.find(cell => cell[ENTITY_ID] === fact[ENTITY_ID])
 		});
-		SnowflakeBuilder.destroy(cellTable, removedCells, this.dimensionHierarchies, this);
+		this.removeCells(removedCells);
+	}
+	/**
+	 * @public
+	 * */
+	removeCells(cells) {
+		SnowflakeBuilder.destroy(this.cellTable, cells, this.dimensionHierarchies, this);
 	}
 	/**
 	 * @public
 	 * @return {FactTable} returns members
+	 * @deprecated
 	 * */
 	getFacts() {
 		return this.denormalize(this.getCells());
@@ -102,6 +109,7 @@ class Cube {
 	 * @public
 	 * @param {object} fixSpaceOptions - the composed aggregate object, members grouped by dimension names
 	 * @return {FactTable} returns members
+	 * @deprecated
 	 * */
 	getFactsBySet(fixSpaceOptions) {
 		return this.denormalize(this.getCellsBySet(fixSpaceOptions));
@@ -111,6 +119,9 @@ class Cube {
 	 * */
 	getCells() {
 		return this.cellTable;
+	}
+	getEmptyCells() {
+		return this.cellTable.filter(cell => EmptyCell.isEmptyCell(cell))
 	}
 	/**
 	 * @public
@@ -436,7 +447,7 @@ class Cube {
 						options[idAttribute] = combination[dimension][ENTITY_ID]
 					});
 					options = {...options, ...props};
-					const cell = EmptyCell.createCell(options);
+					const cell = EmptyCell.createEmptyCell(options);
 					this.cellTable.addCell(cell);
 				}
 			});

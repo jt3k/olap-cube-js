@@ -62,3 +62,15 @@ each cell is an intersection of all the dimensions of the cube
 
  Custom Member Options может быть параметром к таблицам измерений, чтобы не прокидывать каждый раз их в функциях
  по аналогии Cell Properties
+
+ в settings отправить uuidv4
+
+ заменить метод fill на
+ cube.createEmptyCells(cellData, genericIdFn = uuid) и тут подумать над методом isEmptyCell
+ cube.addEmptyCells(emptyCells)
+
+ тогда fill() заменится на cube.addEmptyCells(cube.createEmptyCells()), что гибче, но можно и оставить fillEmptyCells
+
+ getEmptyCells нужен для удаления нужных ячеек через метод removeCells
+
+ тогда removeEmptyCells выглядит как cube.removeCells(cube.getEmptyCells())

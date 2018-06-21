@@ -11,11 +11,27 @@ function uuidv4() {
 export default class EmptyCell extends Cell {
 	constructor(data, options) {
 		if (!data.id) {
-			data.id = uuidv4()
+			data.id = EmptyCell.generateId()
 		}
 		super(data, options)
 	}
-	static createCell(options) {
+	/**
+	 * @return {EmptyCell}
+	 * */
+	static createEmptyCell(options) {
 		return new EmptyCell(options)
+	}
+	/**
+	 * @param {Cell|{ id: string|number }} cell
+	 * @return {boolean}
+	 * */
+	static isEmptyCell(cell) {
+		return typeof cell.id === 'string'
+	}
+	/**
+	 * @return {string}
+	 * */
+	static generateId() {
+		return uuidv4()
 	}
 }

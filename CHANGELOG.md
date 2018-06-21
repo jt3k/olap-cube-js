@@ -1,5 +1,10 @@
 ## Change Log
 
+*0.10.2
+- Added `getCells` and `getCellsBySet` methods to doc
+- Deprecated methods `getFacts` and `getFactsBySet`, use `getCells` and `getCellsBySet` instead
+- Deprecated method `fill`, use `fillEmptyCells` instead
+
 *0.10.1
 - Fixed cartesian method
 
