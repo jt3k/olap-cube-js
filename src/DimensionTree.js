@@ -47,10 +47,10 @@ export default class DimensionTree extends Tree {
 		});
 	}
 	static createDimensionTree(dimensionTreeData, { templateForeignKey } = new Settings()) {
-		// build 1: idAttributes
+		// build 1: foreignKeys
 		const buildIdAttributeDimensionTable = (dimensionTable) => {
-			if (!dimensionTable.idAttribute) {
-				dimensionTable.idAttribute = DimensionTree.genericId(dimensionTable.dimension, templateForeignKey)
+			if (!dimensionTable.foreignKey) {
+				dimensionTable.foreignKey = DimensionTree.genericId(dimensionTable.dimension, templateForeignKey)
 			}
 		};
 		const dimensionTree = new DimensionTree(dimensionTreeData);
@@ -195,11 +195,11 @@ export default class DimensionTree extends Tree {
 		}
 		const parentTree = this.getParentTree();
 		const { members: parentMembers } = parentTree.getTreeValue();
-		const { idAttribute } = this.getTreeValue();
+		const { foreignKey } = this.getTreeValue();
 		const drillDownMembers = [];
 		members.forEach(member => {
 			parentMembers.forEach(parentMember => {
-				if (parentMember[idAttribute] === member[ENTITY_ID]) {
+				if (parentMember[foreignKey] === member[ENTITY_ID]) {
 					if (drillDownMembers.indexOf(parentMember) === -1) {
 						drillDownMembers.push(parentMember)
 					}
@@ -219,11 +219,11 @@ export default class DimensionTree extends Tree {
 			return members;
 		}
 		const childTree = this.getChildTrees()[0]; // for one child always
-		const { members: childMembers, idAttribute } = childTree.getTreeValue();
+		const { members: childMembers, foreignKey } = childTree.getTreeValue();
 		const rollUpMembers = [];
 		members.forEach(member => {
 			childMembers.forEach(childMember => {
-				if (member[idAttribute] === childMember.getId()) {
+				if (member[foreignKey] === childMember.getId()) {
 					if (rollUpMembers.indexOf(childMember) === -1) {
 						rollUpMembers.push(childMember)
 					}
@@ -239,11 +239,11 @@ export default class DimensionTree extends Tree {
 	createMember(props = {}) {
 		const dimensionTable = this.getTreeValue();
 		const childIdAttributes = this.getChildTrees().map(dimensionTree =>
-			dimensionTree.getTreeValue().idAttribute
+			dimensionTree.getTreeValue().foreignKey
 		);
 		const linkProps = [];
-		childIdAttributes.forEach(idAttribute => {
-			linkProps.push(idAttribute)
+		childIdAttributes.forEach(foreignKey => {
+			linkProps.push(foreignKey)
 		});
 		return dimensionTable.createMember(props, linkProps)
 	}

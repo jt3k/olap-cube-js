@@ -1,14 +1,14 @@
 import MemberList from './MemberList.js'
 
 export default class DimensionTable {
-	constructor({ dimension, idAttribute, keyProps, otherProps = [], members = []}) {
+	constructor({ dimension, foreignKey, keyProps, otherProps = [], members = []}) {
 		if (!dimension || !keyProps) {
 			throw Error("Bad definition DimensionTable, params 'dimension' and 'keyProps' is required");
 		}
 		/** Name of the dimension */
 		this.dimension = dimension;
 		/** id name */
-		this.idAttribute = idAttribute;
+		this.foreignKey = foreignKey;
 		/** List of key names properties of the table belonging to the current dimension */
 		this.keyProps = keyProps.map(keyProp=>keyProp);
 		/** List of additional names properties of the table belonging to the current dimension */

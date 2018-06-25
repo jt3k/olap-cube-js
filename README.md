@@ -588,7 +588,7 @@ We use <a href="https://semver.org/">SemVer</a> for versioning.
 In future versions:
 
 API
-- Add options for "id" or genericId method, for members, for fast
+- Add options for "id" or genericId method, for members
 - Add support for single keyProp in schema and single dependency (rename `dependency` to `level`)
 - Update method addMember without rollup options (then more than one member will be added)
 

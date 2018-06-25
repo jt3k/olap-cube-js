@@ -142,31 +142,80 @@ describe('class Cube', function() {
 		expect(Cube.prototype.cartesian).toBeDefined();
 	});
 
-	it('setting for templateForeignKey must work', () => {
-		const factTable = [
-			{ id: 1, x: 0 },
-		];
+	describe('test foreignKey', () => {
+		it('setting for templateForeignKey must work', () => {
+			let factTable = [
+				{ id: 1, x: 0 },
+			];
 
-		const dimensionHierarchies = [
-			{
-				dimensionTable: {
-					dimension: 'x',
-					keyProps: ['x']
+			let dimensionHierarchies = [
+				{
+					dimensionTable: {
+						dimension: 'x',
+						keyProps: ['x']
+					},
+					dependency: [
+						{
+							dimensionTable: {
+								dimension: 'xx',
+								keyProps: ['xx']
+							}
+						}
+					]
 				}
-			}
-		];
+			];
 
-		const options = {
-			templateForeignKey: '%sId'
-		};
-		const cube = Cube.create(factTable, dimensionHierarchies, options);
+			let options = {
+				templateForeignKey: '%sId'
+			};
+			let cube = Cube.create(factTable, dimensionHierarchies, options);
+			debug = isEqualObjects(
+				cube.cellTable[0],
+				{ id: 1, xId: 1 }
+			)
+			debug = isEqualObjects(
+				cube.dimensionHierarchies[0].dimensionTable.members[0],
+				{ id: 1, x: 0, xxId: 1 }
+			)
+		});
+		it('foreignKey of dimension table can be any and have high priority', () => {
+			let factTable = [
+				{ id: 1, x: 0 },
+			];
 
-		isEqualObjects(
-			cube.cellTable[0],
-			{ id: 1, xId: 1 }
-		)
+			let dimensionHierarchies = [
+				{
+					dimensionTable: {
+						dimension: 'x',
+						keyProps: ['x']
+					},
+					dependency: [
+						{
+							dimensionTable: {
+								dimension: 'xx',
+								keyProps: ['xx'],
+								foreignKey: 'my_foreign_key_xx'
+							}
+						}
+					]
+				}
+			];
+			let options = {
+				templateForeignKey: '%sId'
+			};
+			let cube = Cube.create(factTable, dimensionHierarchies, options);
+			debug = isEqualObjects(
+				cube.cellTable[0],
+				{ id: 1, xId: 1 }
+			)
+			debug = isEqualObjects(
+				cube.dimensionHierarchies[0].dimensionTable.members[0],
+				{ id: 1, x: 0, my_foreign_key_xx: 1 }
+			)
+		});
 	});
 
+	
 	describe('otherProps must work', () => {
 		let cube;
 		let facts;

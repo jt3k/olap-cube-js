@@ -28,14 +28,14 @@ export default class SnowflakeBuilder {
 	static processDimension(dimensionTree, cells, cellTable, factTable) {
 		const isFirstLevel = dimensionTree.isFirstLevel();
 		const dimensionTable = dimensionTree.getTreeValue();
-		const { dimension, keyProps = [], otherProps = [], members: memberList, idAttribute } = dimensionTable;
-		const childIdAttributes = dimensionTree.getChildTrees().map(dimensionTree => dimensionTree.getTreeValue().idAttribute);
+		const { dimension, keyProps = [], otherProps = [], members: memberList, foreignKey } = dimensionTable;
+		const childIdAttributes = dimensionTree.getChildTrees().map(dimensionTree => dimensionTree.getTreeValue().foreignKey);
 		const childDimensions = dimensionTree.getChildTrees().map(dimensionTree => dimensionTree.getTreeValue().dimension);
 
 		let members;
 
 		const existMemberCount = memberList.length;
-		const args = [idAttribute, existMemberCount, factTable, cells, dimension, keyProps, otherProps, cells, isFirstLevel, cellTable];
+		const args = [foreignKey, existMemberCount, factTable, cells, dimension, keyProps, otherProps, cells, isFirstLevel, cellTable];
 
 		if (!childIdAttributes.length) {
 			members = SnowflakeBuilder.makeMemberList.apply(null, args);
@@ -58,18 +58,18 @@ export default class SnowflakeBuilder {
 	}
 	/**
 	 * Method filter cells by members of a dimension
-	 * @param {string} idAttribute
+	 * @param {string} foreignKey
 	 * @param {Cell[]} cells
 	 * @param {MemberList} memberList
 	 * @private
 	 * @return {CellTable[]}
 	 * */
-	static mapFilter(idAttribute, cells, memberList) {
+	static mapFilter(foreignKey, cells, memberList) {
 		const cellTables = [];
 		//todo оптимизировать поиск через хеш
 		memberList.forEach(member => {
 			const cellTableFiltered = cells.filter(cell => {
-				return cell[idAttribute] == member.getId();
+				return cell[foreignKey] == member.getId();
 			});
 			cellTables.push(cellTableFiltered);
 		});
@@ -78,13 +78,13 @@ export default class SnowflakeBuilder {
 	/**
 	 * @private
 	 * */
-	static makeMemberListDependency(idAttribute, existMemberCount, factTable, whatIsIt, dimension, keyProps, otherProps, cells, isFirstLevel, cellTable, childIdAttributes, entitiesParts) {
+	static makeMemberListDependency(foreignKey, existMemberCount, factTable, whatIsIt, dimension, keyProps, otherProps, cells, isFirstLevel, cellTable, childIdAttributes, entitiesParts) {
 		let totalMemberList = [];
 
 		let countId = 0;
 		entitiesParts.forEach(entitiesPart => {
 			if (entitiesPart.length) {
-				const members = SnowflakeBuilder.makeMemberList(idAttribute, existMemberCount, factTable, entitiesPart, dimension, keyProps, otherProps, cells, isFirstLevel, cellTable, countId);
+				const members = SnowflakeBuilder.makeMemberList(foreignKey, existMemberCount, factTable, entitiesPart, dimension, keyProps, otherProps, cells, isFirstLevel, cellTable, countId);
 				countId = countId + members.length;
 
 				const etalon = entitiesPart[0];
@@ -123,7 +123,7 @@ export default class SnowflakeBuilder {
 	 * @private
 	 * */
 	static makeMemberList(
-		idAttribute,
+		foreignKey,
 		existMemberCount,
 		factTable,
 		entitiesPart,
@@ -167,12 +167,12 @@ export default class SnowflakeBuilder {
 
 			// оставить в нормальной форме ссылку на id под сущности
 			const id = cache[surrogateKey];
-			entityPart[idAttribute] = id;
+			entityPart[foreignKey] = id;
 		});
 
 		Object.keys(cache).forEach(key => {
 			const id = cache[key];
-			const entityPart = entitiesPart.find(entityPart => entityPart[idAttribute] === id);
+			const entityPart = entitiesPart.find(entityPart => entityPart[foreignKey] === id);
 			const member = Member.create(id, [].concat(keyProps).concat(otherProps), entityPart);
 			members.push(member);
 		});
@@ -215,13 +215,13 @@ export default class SnowflakeBuilder {
 
 		return factTable;
 	}
-	static restoreCell(member, memberList, dimension, cell, idAttribute) {
+	static restoreCell(member, memberList, dimension, cell, foreignKey) {
 		const memberCopy = new Member(member);
 		memberCopy.deleteId();
-		delete cell[idAttribute];
+		delete cell[foreignKey];
 		Object.assign(cell, memberCopy)
 	}
-	static removeMembers(cube, member, memberList, dimension, cell, idAttribute) {
+	static removeMembers(cube, member, memberList, dimension, cell, foreignKey) {
 		const { cellTable } = cube.projection({ [dimension]: member });
 		// last cell was removed at the beginning of the algorithm,
 		// so if the member is no longer used, the projection will be empty
@@ -232,13 +232,13 @@ export default class SnowflakeBuilder {
 
 	static travers(cellTable, dimensionTree, handlers = () => {}) {
 		const handleDimensionTree = (dimensionTree, cell) => {
-			const { dimension, members: memberList, idAttribute } = dimensionTree.getTreeValue();
-			const idValue = cell[idAttribute];
+			const { dimension, members: memberList, foreignKey } = dimensionTree.getTreeValue();
+			const idValue = cell[foreignKey];
 			const member = memberList.find(member => {
 				return member.getId() === idValue;
 			});
 			handlers.forEach(handler => {
-				handler(member, memberList, dimension, cell, idAttribute);
+				handler(member, memberList, dimension, cell, foreignKey);
 			})
 		};
 		cellTable.forEach(cell => {
