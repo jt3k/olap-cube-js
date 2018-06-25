@@ -1,6 +1,6 @@
 import {ENTITY_ID} from './const.js'
 import Member from './Member.js'
-import InputMember from "./InputMember.js";
+import InputMember from './InputMember.js'
 
 /**
  * */
@@ -19,10 +19,10 @@ export default class MemberList extends Array {
 		return [].filter.apply(this, arguments);
 	}
 	/**
-	 *
+	 * @param {Member} member
 	 * */
 	addMember(member) {
-		if (this.indexOf(member[ENTITY_ID] === -1)) {
+		if (this.indexOf(member.getId() === -1)) {
 			this.push(member)
 		} else {
 			debugger;

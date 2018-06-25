@@ -1,7 +1,8 @@
 import DimensionTable from './DimensionTable.js'
+import Settings from './Settings.js'
 import Tree from './Tree.js'
 import {DimensionException} from './errors.js'
-import { DEFAULT_TEMPLATE_FOREIGN_KEY, ENTITY_ID } from './const.js'
+import { ENTITY_ID } from './const.js'
 
 /**
  * It defines the relationship of generalization and specialization (roll-up/drill-down)
@@ -45,7 +46,7 @@ export default class DimensionTree extends Tree {
 			}
 		});
 	}
-	static createDimensionTree(dimensionTreeData, { templateForeignKey = DEFAULT_TEMPLATE_FOREIGN_KEY } = {}) {
+	static createDimensionTree(dimensionTreeData, { templateForeignKey } = new Settings()) {
 		// build 1: idAttributes
 		const buildIdAttributeDimensionTable = (dimensionTable) => {
 			if (!dimensionTable.idAttribute) {
@@ -222,7 +223,7 @@ export default class DimensionTree extends Tree {
 		const rollUpMembers = [];
 		members.forEach(member => {
 			childMembers.forEach(childMember => {
-				if (member[idAttribute] === childMember[ENTITY_ID]) {
+				if (member[idAttribute] === childMember.getId()) {
 					if (rollUpMembers.indexOf(childMember) === -1) {
 						rollUpMembers.push(childMember)
 					}

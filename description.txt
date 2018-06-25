@@ -80,3 +80,5 @@ each cell is an intersection of all the dimensions of the cube
  Deprecated methods `getFacts` and `getFactsBySet`, use `getCells` and `getCellsBySet` instead или все же не стоит?
 
  подумать об инверсии уровней в обратном порядке, инверсия должна быть совместима с multiple hierarchies
+
+ разобраться с residuals

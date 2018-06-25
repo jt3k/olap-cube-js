@@ -1,8 +1,7 @@
 import MemberList from './MemberList.js'
-import Member from './Member.js'
 import {ENTITY_ID} from './const.js'
-import Cube from './Cube.js'
 import FactTable from './FactTable.js'
+import Member from './Member.js'
 
 /**
  * The main task is to parse the data array into tables
@@ -70,7 +69,7 @@ export default class SnowflakeBuilder {
 		//todo оптимизировать поиск через хеш
 		memberList.forEach(member => {
 			const cellTableFiltered = cells.filter(cell => {
-				return cell[idAttribute] == member[ENTITY_ID];
+				return cell[idAttribute] == member.getId();
 			});
 			cellTables.push(cellTableFiltered);
 		});
@@ -94,7 +93,7 @@ export default class SnowflakeBuilder {
 
 					members.forEach(member => {
 						member[childIdAttribute] = etalon[childIdAttribute];
-						member[ENTITY_ID] = existMemberCount + totalMemberList.length + 1;
+						member.setId(existMemberCount + totalMemberList.length + 1);
 						totalMemberList.push(member)
 					});
 
@@ -217,8 +216,8 @@ export default class SnowflakeBuilder {
 		return factTable;
 	}
 	static restoreCell(member, memberList, dimension, cell, idAttribute) {
-		const memberCopy = {...member};
-		delete memberCopy[ENTITY_ID];
+		const memberCopy = new Member(member);
+		memberCopy.deleteId();
 		delete cell[idAttribute];
 		Object.assign(cell, memberCopy)
 	}
@@ -236,7 +235,7 @@ export default class SnowflakeBuilder {
 			const { dimension, members: memberList, idAttribute } = dimensionTree.getTreeValue();
 			const idValue = cell[idAttribute];
 			const member = memberList.find(member => {
-				return member[ENTITY_ID] === idValue;
+				return member.getId() === idValue;
 			});
 			handlers.forEach(handler => {
 				handler(member, memberList, dimension, cell, idAttribute);

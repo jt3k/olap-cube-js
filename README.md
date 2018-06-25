@@ -521,7 +521,7 @@ You can remove all or some of the empty cells. At the same time, some of the dim
 ```js
 cube.removeCell(cube.getEmptyCells())
 // or
-cube.removeCell(cube.getEmptyCells().filter(cell => !value))
+cube.removeCell(cube.getEmptyCells().filter(({ value }) => !value))
 
 ```
 

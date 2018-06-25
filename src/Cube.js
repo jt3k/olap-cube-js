@@ -14,6 +14,7 @@ import TupleTable from './TupleTable.js'
 import Space from './Space.js'
 import Cell from './Cell.js'
 import EmptyCellTable from './EmptyCellTable.js'
+import Settings from './Settings.js'
 
 /**
  * It a means to retrieve data
@@ -27,7 +28,7 @@ class Cube {
 	constructor(cube) {
 		const { dimensionHierarchies = [], cellTable = [], settings = {} } = cube;
 
-		this.settings = { ...settings };
+		this.settings = new Settings(settings);
 		this.dimensionHierarchies = [];
 		dimensionHierarchies.map(this._addDimensionHierarchy.bind(this));
 		this.cellTable = new CellTable(cellTable);
@@ -155,6 +156,15 @@ class Cube {
 			fixSpace[dimension] = Array.isArray(fixSpaceOptions[dimension])
 				? fixSpaceOptions[dimension]
 				: [fixSpaceOptions[dimension]];
+
+			// fixSpaceOptions[dimension].forEach((memberData, index) => {
+			// 	const members = this.getDimensionMembers(dimension);
+			// 	let member = members.find(member => member.getId() === memberData[ENTITY_ID]);
+			// 	fixSpaceOptions[dimension][index] = member;
+			// 	if (!memberData) {
+			// 		console.warn(`not founded member by id ${member.getId()}`)
+			// 	}
+			// })
 		});
 
 		const dimensionHierarchiesLength = this.dimensionHierarchies.length;
@@ -243,7 +253,7 @@ class Cube {
 		// todo смахивает на mapFilter
 		cells.forEach(cell => {
 			rootMembers.forEach(rootMember => {
-				if (cell[rootIdAttribute] === rootMember[ENTITY_ID]) {
+				if (cell[rootIdAttribute] === rootMember.getId()) {
 					if (members.indexOf(rootMember) === -1) {
 						members.push(rootMember)
 					}
@@ -363,7 +373,7 @@ class Cube {
 			const memberList = this.getDimensionMembers(dimension);
 			const id = memberData[ENTITY_ID];
 			const find = memberList.find(member => {
-				return id === member[ENTITY_ID]
+				return id === member.getId()
 			});
 			if (!find) {
 				throw new CantAddMemberRollupException(dimension, id)
@@ -390,7 +400,7 @@ class Cube {
 		dimensionTree.traceUpOrder(tracedDimensionTree => {
 			if (dimensionTree !== tracedDimensionTree) {
 				const { dimension: parentDimension, idAttribute: parentIdAttribute } = tracedDimensionTree.getTreeValue();
-				const drillDownCoordinatesData = { [ saveIdAttribute]: saveMember[ENTITY_ID] };
+				const drillDownCoordinatesData = { [ saveIdAttribute]: saveMember.getId() };
 				Object.assign(drillDownCoordinatesData, drillDownCoordinatesOptions[parentDimension]);
 				saveMember = tracedDimensionTree.createMember(drillDownCoordinatesData);
 				saveIdAttribute = parentIdAttribute;
@@ -414,7 +424,7 @@ class Cube {
 			// todo mapFilter похоже
 			cellTable.forEach(cell => {
 				members.forEach(member => {
-					if (cell[idAttribute] == member[ENTITY_ID]) {
+					if (cell[idAttribute] == member.getId()) {
 						removedCells.push(cell)
 					}
 				})
@@ -599,7 +609,7 @@ class Cube {
 				let options = {};
 				Object.keys(combination).forEach(dimension => {
 					const { idAttribute } = this.findDimensionTreeByDimension(dimension).getTreeValue();
-					options[idAttribute] = combination[dimension][ENTITY_ID]
+					options[idAttribute] = combination[dimension].getId()
 				});
 				options = {...options, ...props};
 				const cell = EmptyCell.createEmptyCell(options);

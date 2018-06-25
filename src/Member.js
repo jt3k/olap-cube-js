@@ -22,4 +22,13 @@ export default class Member {
 		});
 		return new this(memberData)
 	}
+	getId() {
+		return this[ENTITY_ID]
+	}
+	setId(id) {
+		this[ENTITY_ID] = id;
+	}
+	deleteId() {
+		delete this[ENTITY_ID]
+	}
 }

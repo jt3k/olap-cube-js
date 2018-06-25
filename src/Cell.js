@@ -14,4 +14,7 @@ export default class Cell extends Fact {
 			}
 		});
 	}
+	deleteId() {
+		delete this[ENTITY_ID]
+	}
 }
