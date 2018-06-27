@@ -6,7 +6,7 @@ import Fact from './Fact.js'
  * in each dimension of a multidimensional array.
  * The cells of the hypercube can be empty or full.
  * */
-export default class Cell extends Fact {
+export default class Cell extends Fact{
 	deleteProps(props) {
 		props.forEach(prop => {
 			if (prop !== ENTITY_ID) {

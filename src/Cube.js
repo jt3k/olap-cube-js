@@ -68,8 +68,8 @@ class Cube {
 	 * @param {Object[]} facts
 	 * */
 	addFacts(facts) {
-		const newFactTable = new FactTable(facts);
-		const cells = newFactTable.map(fact => new Cell(fact));
+		const newFactTable = new FactTable({facts, factIdProp: this.settings.factIdProp});
+		const cells = newFactTable.getFacts().map(fact => new Cell(fact));
 		this.cellTable.addCells(cells);
 		const factTable = this.getFacts();
 		SnowflakeBuilder.anotherBuild(factTable, cells, this.dimensionHierarchies, this.cellTable);

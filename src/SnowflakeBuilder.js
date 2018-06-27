@@ -204,16 +204,17 @@ export default class SnowflakeBuilder {
 	 * */
 	static denormalize(cellTable, dimensionHierarchies) {
 		const factTable = new FactTable();
+		const facts = factTable.getFacts();
 		cellTable.forEach(cell => {
-			factTable.push({...cell})
+			facts.push({...cell})
 		});
-		factTable.forEach(fact => {
+		facts.forEach(fact => {
 			dimensionHierarchies.forEach(dimensionTree => {
 				SnowflakeBuilder.travers([fact], dimensionTree, [SnowflakeBuilder.restoreCell]);
 			});
 		});
 
-		return factTable;
+		return facts;
 	}
 	static restoreCell(member, memberList, dimension, cell, foreignKey) {
 		const memberCopy = new Member(member);

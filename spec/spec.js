@@ -1,5 +1,6 @@
 import '../src/Tree.spec.js'
 import '../src/Fact.spec.js'
+import '../src/FactTable.spec.js'
 import '../src/Cell.spec.js'
 import '../src/EmptyCell.spec.js'
 import '../src/DimensionTable.spec.js'
