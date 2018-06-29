@@ -1,7 +1,8 @@
 import MemberList from './MemberList.js'
+import {ENTITY_ID} from './const.js'
 
 export default class DimensionTable {
-	constructor({ dimension, foreignKey, keyProps, otherProps = [], members = []}) {
+	constructor({ dimension, foreignKey, primaryKey = ENTITY_ID, keyProps, otherProps = [], members = []}) {
 		if (!dimension || !keyProps) {
 			throw Error("Bad definition DimensionTable, params 'dimension' and 'keyProps' is required");
 		}
@@ -9,12 +10,14 @@ export default class DimensionTable {
 		this.dimension = dimension;
 		/** id name */
 		this.foreignKey = foreignKey;
+		/** id name */
+		this.primaryKey = primaryKey;
 		/** List of key names properties of the table belonging to the current dimension */
-		this.keyProps = keyProps.map(keyProp=>keyProp);
+		this.keyProps = [].concat(keyProps);
 		/** List of additional names properties of the table belonging to the current dimension */
 		this.otherProps = [].concat(otherProps);
 		/** member list */
-		this.members = new MemberList(members);
+		this.members = this.createMemberList(members);
 	}
 	/**
 	 *
@@ -26,7 +29,7 @@ export default class DimensionTable {
 	 *
 	 * */
 	clearMemberList() {
-		this.members = new MemberList([]);
+		this.members = this.createMemberList([]);
 	}
 	/**
 	 * @public
@@ -37,5 +40,8 @@ export default class DimensionTable {
 	createMember(props = {}, linkProps) {
 		const { keyProps, otherProps, members } = this;
 		return members.createMember(keyProps.concat(linkProps).concat(otherProps), props);
+	}
+	createMemberList(members) {
+		return new MemberList(members, this.primaryKey)
 	}
 }

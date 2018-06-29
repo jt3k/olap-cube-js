@@ -1,4 +1,4 @@
-import MemberList from "./MemberList";
+import MemberList from "./MemberList.js";
 
 describe('MemberList', () => {
 	it('generation unique entity ID from exist entities if they have empty list', () => {

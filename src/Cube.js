@@ -159,10 +159,10 @@ class Cube {
 
 			// fixSpaceOptions[dimension].forEach((memberData, index) => {
 			// 	const members = this.getDimensionMembers(dimension);
-			// 	let member = members.find(member => member.getId() === memberData[ENTITY_ID]);
+			// 	let member = members.find(member => members.getMemberId(member) === memberData[ENTITY_ID]);
 			// 	fixSpaceOptions[dimension][index] = member;
 			// 	if (!memberData) {
-			// 		console.warn(`not founded member by id ${member.getId()}`)
+			// 		console.warn(`not founded member by id ${members.getMemberId(member)}`)
 			// 	}
 			// })
 		});
@@ -253,7 +253,7 @@ class Cube {
 		// todo смахивает на mapFilter
 		cells.forEach(cell => {
 			rootMembers.forEach(rootMember => {
-				if (cell[rootIdAttribute] === rootMember.getId()) {
+				if (cell[rootIdAttribute] === rootMembers.getMemberId(rootMember)) {
 					if (members.indexOf(rootMember) === -1) {
 						members.push(rootMember)
 					}
@@ -373,7 +373,7 @@ class Cube {
 			const memberList = this.getDimensionMembers(dimension);
 			const id = memberData[ENTITY_ID];
 			const find = memberList.find(member => {
-				return id === member.getId()
+				return id === memberList.getMemberId(member)
 			});
 			if (!find) {
 				throw new CantAddMemberRollupException(dimension, id)
@@ -394,13 +394,13 @@ class Cube {
 			}
 		});
 		const dimensionTable = dimensionTree.getTreeValue();
-		const { foreignKey } = dimensionTable;
+		const { foreignKey, members } = dimensionTable;
 		let saveMember = dimensionTree.createMember(memberOptions);
 		let saveIdAttribute = foreignKey;
 		dimensionTree.traceUpOrder(tracedDimensionTree => {
 			if (dimensionTree !== tracedDimensionTree) {
 				const { dimension: parentDimension, foreignKey: parentIdAttribute } = tracedDimensionTree.getTreeValue();
-				const drillDownCoordinatesData = { [ saveIdAttribute]: saveMember.getId() };
+				const drillDownCoordinatesData = { [ saveIdAttribute]: members.getMemberId(saveMember) };
 				Object.assign(drillDownCoordinatesData, drillDownCoordinatesOptions[parentDimension]);
 				saveMember = tracedDimensionTree.createMember(drillDownCoordinatesData);
 				saveIdAttribute = parentIdAttribute;
@@ -424,7 +424,7 @@ class Cube {
 			// todo mapFilter похоже
 			cellTable.forEach(cell => {
 				members.forEach(member => {
-					if (cell[foreignKey] == member.getId()) {
+					if (cell[foreignKey] == members.getMemberId(member)) {
 						removedCells.push(cell)
 					}
 				})
@@ -608,8 +608,8 @@ class Cube {
 			if (!unique.length) {
 				let options = {};
 				Object.keys(combination).forEach(dimension => {
-					const { foreignKey } = this.findDimensionTreeByDimension(dimension).getTreeValue();
-					options[foreignKey] = combination[dimension].getId()
+					const { foreignKey, members } = this.findDimensionTreeByDimension(dimension).getTreeValue();
+					options[foreignKey] = members.getMemberId(combination[dimension])
 				});
 				options = {...options, ...props};
 				const cell = EmptyCell.createEmptyCell(options);

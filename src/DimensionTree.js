@@ -223,7 +223,7 @@ export default class DimensionTree extends Tree {
 		const rollUpMembers = [];
 		members.forEach(member => {
 			childMembers.forEach(childMember => {
-				if (member[foreignKey] === childMember.getId()) {
+				if (member[foreignKey] === childMembers.getMemberId(childMember)) {
 					if (rollUpMembers.indexOf(childMember) === -1) {
 						rollUpMembers.push(childMember)
 					}

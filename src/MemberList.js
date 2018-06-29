@@ -1,16 +1,25 @@
-import {ENTITY_ID} from './const.js'
 import Member from './Member.js'
 import InputMember from './InputMember.js'
 
 /**
  * */
 export default class MemberList extends Array {
-	constructor(array = []) {
+	constructor(array = [], primaryKey) {
 		super();
+		this.primaryKey = primaryKey;
 		if (Array.isArray(array)) {
 			array = array.map(member => new Member(member));
 			Object.assign(this, array)
 		}
+	}
+	getMemberId(member) {
+		return member[this.primaryKey]
+	}
+	setMemberId(member, id) {
+		member[this.primaryKey] = id;
+	}
+	deleteMemberId(member) {
+		delete member[this.primaryKey]
 	}
 	/**
 	 *
@@ -22,7 +31,7 @@ export default class MemberList extends Array {
 	 * @param {Member} member
 	 * */
 	addMember(member) {
-		if (this.indexOf(member.getId() === -1)) {
+		if (this.indexOf(this.getMemberId(member) === -1)) {
 			this.push(member)
 		} else {
 			debugger;
@@ -49,7 +58,7 @@ export default class MemberList extends Array {
 	 * Fabric method
 	 * */
 	createMember(keys, props, id = this.reduceId()) {
-		const member = InputMember.create(id, keys, props);
+		const member = InputMember.create(id, keys, props, this.primaryKey);
 		this.addMember(member);
 		return member;
 	}
@@ -60,7 +69,7 @@ export default class MemberList extends Array {
 	reduceId() {
 		if (this.length) {
 			return this.reduce((acc, curValue) => {
-				return acc[ENTITY_ID] > curValue[ENTITY_ID] ? acc : curValue;
+				return acc[this.primaryKey] > curValue[this.primaryKey] ? acc : curValue;
 			}, 0).id + 1
 		} else {
 			return 1;

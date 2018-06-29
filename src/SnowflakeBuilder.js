@@ -28,14 +28,14 @@ export default class SnowflakeBuilder {
 	static processDimension(dimensionTree, cells, cellTable, factTable) {
 		const isFirstLevel = dimensionTree.isFirstLevel();
 		const dimensionTable = dimensionTree.getTreeValue();
-		const { dimension, keyProps = [], otherProps = [], members: memberList, foreignKey } = dimensionTable;
+		const { dimension, keyProps = [], otherProps = [], members: memberList, foreignKey, primaryKey } = dimensionTable;
 		const childIdAttributes = dimensionTree.getChildTrees().map(dimensionTree => dimensionTree.getTreeValue().foreignKey);
 		const childDimensions = dimensionTree.getChildTrees().map(dimensionTree => dimensionTree.getTreeValue().dimension);
 
 		let members;
 
 		const existMemberCount = memberList.length;
-		const args = [foreignKey, existMemberCount, factTable, cells, dimension, keyProps, otherProps, cells, isFirstLevel, cellTable];
+		const args = [primaryKey, foreignKey, existMemberCount, factTable, cells, dimension, keyProps, otherProps, cells, isFirstLevel, cellTable];
 
 		if (!childIdAttributes.length) {
 			members = SnowflakeBuilder.makeMemberList.apply(null, args);
@@ -69,7 +69,7 @@ export default class SnowflakeBuilder {
 		//todo оптимизировать поиск через хеш
 		memberList.forEach(member => {
 			const cellTableFiltered = cells.filter(cell => {
-				return cell[foreignKey] == member.getId();
+				return cell[foreignKey] == memberList.getMemberId(member);
 			});
 			cellTables.push(cellTableFiltered);
 		});
@@ -78,13 +78,13 @@ export default class SnowflakeBuilder {
 	/**
 	 * @private
 	 * */
-	static makeMemberListDependency(foreignKey, existMemberCount, factTable, whatIsIt, dimension, keyProps, otherProps, cells, isFirstLevel, cellTable, childIdAttributes, entitiesParts) {
+	static makeMemberListDependency(primaryKey, foreignKey, existMemberCount, factTable, whatIsIt, dimension, keyProps, otherProps, cells, isFirstLevel, cellTable, childIdAttributes, entitiesParts) {
 		let totalMemberList = [];
 
 		let countId = 0;
 		entitiesParts.forEach(entitiesPart => {
 			if (entitiesPart.length) {
-				const members = SnowflakeBuilder.makeMemberList(foreignKey, existMemberCount, factTable, entitiesPart, dimension, keyProps, otherProps, cells, isFirstLevel, cellTable, countId);
+				const members = SnowflakeBuilder.makeMemberList(primaryKey, foreignKey, existMemberCount, factTable, entitiesPart, dimension, keyProps, otherProps, cells, isFirstLevel, cellTable, countId);
 				countId = countId + members.length;
 
 				const etalon = entitiesPart[0];
@@ -93,7 +93,7 @@ export default class SnowflakeBuilder {
 
 					members.forEach(member => {
 						member[childIdAttribute] = etalon[childIdAttribute];
-						member.setId(existMemberCount + totalMemberList.length + 1);
+						member[primaryKey] = (existMemberCount + totalMemberList.length + 1);
 						totalMemberList.push(member)
 					});
 
@@ -123,6 +123,7 @@ export default class SnowflakeBuilder {
 	 * @private
 	 * */
 	static makeMemberList(
+		primaryKey,
 		foreignKey,
 		existMemberCount,
 		factTable,
@@ -173,7 +174,7 @@ export default class SnowflakeBuilder {
 		Object.keys(cache).forEach(key => {
 			const id = cache[key];
 			const entityPart = entitiesPart.find(entityPart => entityPart[foreignKey] === id);
-			const member = Member.create(id, [].concat(keyProps).concat(otherProps), entityPart);
+			const member = Member.create(id, [].concat(keyProps).concat(otherProps), entityPart, primaryKey);
 			members.push(member);
 		});
 
@@ -218,7 +219,7 @@ export default class SnowflakeBuilder {
 	}
 	static restoreCell(member, memberList, dimension, cell, foreignKey) {
 		const memberCopy = new Member(member);
-		memberCopy.deleteId();
+		memberList.deleteMemberId(memberCopy);
 		delete cell[foreignKey];
 		Object.assign(cell, memberCopy)
 	}
@@ -236,7 +237,7 @@ export default class SnowflakeBuilder {
 			const { dimension, members: memberList, foreignKey } = dimensionTree.getTreeValue();
 			const idValue = cell[foreignKey];
 			const member = memberList.find(member => {
-				return member.getId() === idValue;
+				return memberList.getMemberId(member) === idValue;
 			});
 			handlers.forEach(handler => {
 				handler(member, memberList, dimension, cell, foreignKey);

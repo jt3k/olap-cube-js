@@ -144,7 +144,7 @@ describe('class Cube', function() {
 
 	describe('test foreignKey', () => {
 		it('setting for templateForeignKey must work', () => {
-			let factTable = [
+			let facts = [
 				{ id: 1, x: 0 },
 			];
 
@@ -168,7 +168,7 @@ describe('class Cube', function() {
 			let options = {
 				templateForeignKey: '%sId'
 			};
-			let cube = Cube.create(factTable, dimensionHierarchies, options);
+			let cube = Cube.create(facts, dimensionHierarchies, options);
 			debug = isEqualObjects(
 				cube.cellTable[0],
 				{ id: 1, xId: 1 }
@@ -179,7 +179,7 @@ describe('class Cube', function() {
 			)
 		});
 		it('foreignKey of dimension table can be any and have high priority', () => {
-			let factTable = [
+			let facts = [
 				{ id: 1, x: 0 },
 			];
 
@@ -203,7 +203,7 @@ describe('class Cube', function() {
 			let options = {
 				templateForeignKey: '%sId'
 			};
-			let cube = Cube.create(factTable, dimensionHierarchies, options);
+			let cube = Cube.create(facts, dimensionHierarchies, options);
 			debug = isEqualObjects(
 				cube.cellTable[0],
 				{ id: 1, xId: 1 }
@@ -213,6 +213,39 @@ describe('class Cube', function() {
 				{ id: 1, x: 0, my_foreign_key_xx: 1 }
 			)
 		});
+	});
+
+	describe('test primaryKey', () => {
+		it('members must have special prop name as id', () => {
+			let facts = [
+				{ id: 1, x: 0, y: 0 },
+			];
+			let dimensionHierarchies = [
+				{
+					dimensionTable: {
+						primaryKey: 'ID',
+						dimension: 'x',
+						keyProps: ['x']
+					}
+				},
+				{
+					dimensionTable: {
+						primaryKey: 'ID_Y',
+						dimension: 'y',
+						keyProps: ['y']
+					}
+				}
+			]
+			let cube = Cube.create(facts, dimensionHierarchies)
+			debug = isEqualObjects(
+				cube.dimensionHierarchies[0].dimensionTable.members[0],
+				{ ID: 1, x: 0 }
+			)
+			debug = isEqualObjects(
+				cube.dimensionHierarchies[1].dimensionTable.members[0],
+				{ ID_Y: 1, y: 0 }
+			)
+		})
 	});
 
 	

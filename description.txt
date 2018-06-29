@@ -82,3 +82,5 @@ each cell is an intersection of all the dimensions of the cube
  подумать об инверсии уровней в обратном порядке, инверсия должна быть совместима с multiple hierarchies
 
  разобраться с residuals
+
+порядок аргументов изменить с facts, dimensionHierarchies на обратный
